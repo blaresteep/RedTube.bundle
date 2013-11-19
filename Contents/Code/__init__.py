@@ -48,6 +48,12 @@ def Start():
 # This tells Plex how to list you in the available channels and what type of channels this is 
 @handler(PREFIX, TITLE, art=ART, thumb=ICON)
 def MainMenu():
+	#items to pre-cache that don't change often but that can take a while to load
+	HTTP.PreCache(REDTUBE_TAGS_LIST, cacheTime=CACHE_1WEEK )
+	HTTP.PreCache(REDTUBE_CHANNELS_LIST, cacheTime=CACHE_1WEEK )
+	HTTP.PreCache(REDTUBE_PORNSTARS_LIST, cacheTime=CACHE_1DAY )
+	HTTP.PreCache(REDTUBE_CHANNELS_LIST_HTML, cacheTime=CACHE_1WEEK )
+	
 	# You have to open an object container to produce the icons you want to appear on this page. 
 	oc = ObjectContainer()
 	oc.add(DirectoryObject(key=Callback(MovieList, mainTitle='Newest', url=REDTUBE_NEWEST), title='Newest', summary='The newest RedTube vidoes', thumb=R(ICON)))
@@ -111,6 +117,7 @@ def CategoriesMenu():
 		categoryItemTitle = categoryItem.xpath('div/a')[0].get('title')
 		categoryItemCatName = categoryItem.xpath('div/a/img')[0].get('id')
 		categoryItemThumb = categoryItem.xpath('div/a/img')[0].get('src')
+		HTTP.PreCache(categoryItemThumb, cacheTime=CACHE_1WEEK)
 		oc.add(DirectoryObject(key=Callback(SortOrderSubMenu, mainTitle=categoryItemTitle, url=REDTUBE_CHANNELS, searchQuery=categoryItemCatName, pageFormat=pageFormat), title=categoryItemTitle, thumb=categoryItemThumb))
 	#Check to make sure we got all the Channels.  #japanesecensored doesn't show up in Web Page so just ignore it and make sure we're within 1 category of API
 	categories = JSON.ObjectFromURL(REDTUBE_CHANNELS_LIST)
@@ -177,6 +184,7 @@ def PornstarsList(mainTitle,searchQuery,sortOrder='newest',page=1):
 				star = star['star']
 			pornstarItemTitle = star['star_name']
 			pornstarItemThumb = star['star_thumb']
+			HTTP.PreCache(pornstarItemThumb, cacheTime=CACHE_1WEEK)
 			pornstarItemQuery = star['star_url'].rsplit('/',1)[1].strip()
 			oc.add(DirectoryObject(key=Callback(MovieList, url=REDTUBE_PORNSTAR, mainTitle=pornstarItemTitle, searchQuery=pornstarItemQuery, pageFormat=pageFormat, sortOrder=sortOrder), title=pornstarItemTitle, thumb=pornstarItemThumb))
 	if len(oc) == PORNSTAR_PAGE_SIZE:
@@ -247,6 +255,7 @@ def MovieList(url, mainTitle='',searchQuery='none',pageFormat='normal',sortOrder
 			title = data['title']
 			vidurl = data['url']
 			thumb = data['default_thumb'] #.replace('m.jpg', 'b.jpg')
+			HTTP.PreCache(thumb, cacheTime=CACHE_1WEEK)
 
 			try: duration = TimeToMs(data['duration'])
 			except: duration = None
