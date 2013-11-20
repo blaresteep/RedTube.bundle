@@ -257,7 +257,7 @@ def MovieList(url, mainTitle='',searchQuery='none',pageFormat='normal',sortOrder
 			thumb = data['default_thumb'] #.replace('m.jpg', 'b.jpg')
 			HTTP.PreCache(thumb, cacheTime=CACHE_1WEEK)
 
-			try: duration = TimeToMs(data['duration'])
+			try: duration = GetDurationFromstr(data['duration'])
 			except: duration = None
 
 			try: rating = float(data['rating']) * 2
